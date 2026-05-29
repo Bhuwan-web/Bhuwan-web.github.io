@@ -58,10 +58,14 @@
                 <span class='grid h-10 w-10 shrink-0 place-items-center rounded-md bg-white/10'><i data-lucide='calendar-days' class='h-5 w-5 text-cyan-200'></i></span>
               </div>
 
-              <div class='mt-5 grid grid-cols-2 gap-3'>
+              <div class='mt-5 grid gap-3 sm:grid-cols-3'>
                 <div class='rounded-md bg-white/10 p-3 ring-1 ring-white/10'>
                   <p class='text-xs text-slate-300'>Annual tax</p>
                   <p id='annualTax' class='mt-1 text-lg font-bold'>NPR 0</p>
+                </div>
+                <div class='rounded-md bg-white/10 p-3 ring-1 ring-white/10'>
+                  <p class='text-xs text-slate-300'>Annual after tax</p>
+                  <p id='annualNet' class='mt-1 text-lg font-bold'>NPR 0</p>
                 </div>
                 <div class='rounded-md bg-white/10 p-3 ring-1 ring-white/10'>
                   <p class='text-xs text-slate-300'>Monthly after tax</p>
@@ -129,7 +133,7 @@
       const el = id => document.getElementById(id);
       const nodes = {
         form: el('taxForm'), income: el('income'), waive: el('waive'), reset: el('reset'),
-        monthlyTax: el('monthlyTax'), annualTax: el('annualTax'), monthlyNet: el('monthlyNet'),
+        monthlyTax: el('monthlyTax'), annualTax: el('annualTax'), annualNet: el('annualNet'), monthlyNet: el('monthlyNet'),
         activeSlab: el('activeSlab'), breakdown: el('breakdown'), slabRows: el('slabRows')
       };
 
@@ -147,7 +151,7 @@
           annualTax += tax;
           return { ...slab, taxable, appliedRate, tax };
         });
-        return { annualTax, monthlyTax: annualTax / 12, monthlyNet: income / 12 - annualTax / 12, parts };
+        return { annualTax, annualNet: income - annualTax, monthlyTax: annualTax / 12, monthlyNet: income / 12 - annualTax / 12, parts };
       }
 
       function save() {
@@ -183,6 +187,7 @@
         const active = income ? slabs.find(slab => income > slab.lower && income <= slab.upper) || slabs[slabs.length - 1] : null;
         nodes.monthlyTax.textContent = money(result.monthlyTax);
         nodes.annualTax.textContent = money(result.annualTax);
+        nodes.annualNet.textContent = money(result.annualNet);
         nodes.monthlyNet.textContent = money(result.monthlyNet);
         nodes.activeSlab.textContent = active ? `Current slab: ${active.range} at ${active.rateText}` : 'Enter annual income to calculate.';
         const rows = result.parts.filter(part => part.taxable > 0 || income > part.lower);
